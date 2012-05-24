@@ -13,17 +13,14 @@ class Malam_Route
     /**
      * @return Malam_Route
      */
-    public static function instance()
+    public static function factory()
     {
-        static $instance;
-        empty($instance) && $instance = new self;
-        return $instance;
+        return new self();
     }
 
     private function __construct()
     {
-        $this->routes = Kohana::find_file('config', 'route', NULL, TRUE);
-        sort($this->routes);
+        $this->routes = Kohana::$config->load('route');
     }
 
     public function run()
@@ -37,22 +34,14 @@ class Malam_Route
             'defaults'  => NULL,
         );
 
-        foreach ($this->routes as $route_config)
+        foreach ($this->routes as $key => $values)
         {
-            $temp = require_once $route_config;
+            $values += $default_values;
+            extract($values);
 
-            if ($temp)
+            if ((Kohana::$is_cli && TRUE == $is_cli) || (! Kohana::$is_cli && FALSE == $is_cli))
             {
-                foreach ($temp as $key => $values)
-                {
-                    $values += $default_values;
-                    extract($values);
-
-                    if ((Kohana::$is_cli && TRUE == $is_cli) || (! Kohana::$is_cli && FALSE == $is_cli))
-                    {
-                        Route::set($key, $uri_callback, $regex)->defaults($defaults);
-                    }
-                }
+                Route::set($key, $uri_callback, $regex)->defaults($defaults);
             }
         }
     }

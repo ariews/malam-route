@@ -25,9 +25,6 @@ class Malam_Route
 
     public function run()
     {
-        if (! $this->routes)
-            return;
-
         $default_values = array(
             'is_cli'    => FALSE,
             'regex'     => NULL,

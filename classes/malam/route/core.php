@@ -10,6 +10,10 @@ class Malam_Route_Core
 {
     protected $routes;
 
+    const CLI_ONLY          = 1;
+    const NOT_CLI           = 2;
+    const CLI_AND_NOT_CLI   = 3;
+
     /**
      * @return Malam_Route
      */
@@ -27,6 +31,7 @@ class Malam_Route_Core
     {
         $default_values = array(
             'is_cli'    => FALSE,
+            'mode'      => Malam_Route::NOT_CLI,
             'regex'     => NULL,
             'defaults'  => NULL,
             'env'       => NULL,
@@ -37,11 +42,30 @@ class Malam_Route_Core
             $values += $default_values;
             extract($values);
 
-            if (((Kohana::$is_cli && TRUE == $is_cli) || (! Kohana::$is_cli && FALSE == $is_cli))
-                 AND
-                (NULL === $env || $env === Kohana::$environment))
+            if (TRUE === $is_cli)
             {
-                    Route::set($key, $uri_callback, $regex)->defaults($defaults);
+                $mode = Malam_Route::CLI_ONLY;
+            }
+
+            if (Kohana::$is_cli && $key == 'kucing')
+            {
+                print_r($values);
+            };
+
+            $error = FALSE;
+
+            if ($env !== NULL && $env !== Kohana::$environment)
+                $error = TRUE;
+
+            if (TRUE === Kohana::$is_cli && $mode === Malam_Route::NOT_CLI)
+                $error = TRUE;
+
+            if (FALSE === Kohana::$is_cli && $mode === Malam_Route::CLI_ONLY)
+                $error = TRUE;
+
+            if (FALSE === $error)
+            {
+                Route::set($key, $uri_callback, $regex)->defaults($defaults);
             }
         }
     }

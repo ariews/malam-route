@@ -47,11 +47,6 @@ class Malam_Route_Core
                 $mode = Malam_Route::CLI_ONLY;
             }
 
-            if (Kohana::$is_cli && $key == 'kucing')
-            {
-                print_r($values);
-            };
-
             $error = FALSE;
 
             if ($env !== NULL && $env !== Kohana::$environment)
